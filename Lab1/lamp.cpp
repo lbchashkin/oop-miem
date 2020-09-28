@@ -1,7 +1,14 @@
-#include "lamp.h"
 #include <iostream>
+#include "lamp.h"
 
 using namespace std;
+
+const int Lamp::POWER_MIN = 20;
+const int Lamp::POWER_MAX = 200;
+const int Lamp::POWER_DEFAULT = 60;
+const int Lamp::INTENSITY_MIN = 50;
+const int Lamp::INTENSITY_MAX = 500;
+const int Lamp::INTENSITY_DEFAULT = 100;
 
 Lamp::Lamp(const int power, const int intensity) {
     /*

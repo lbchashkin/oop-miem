@@ -5,12 +5,12 @@
 class Lamp
 {
 public:
-    static const int POWER_MIN = 20;
-    static const int POWER_MAX = 200;
-    static const int POWER_DEFAULT = 60;
-    static const int INTENSITY_MIN = 50;
-    static const int INTENSITY_MAX = 500;
-    static const int INTENSITY_DEFAULT = 100;
+    static const int POWER_MIN;
+    static const int POWER_MAX;
+    static const int POWER_DEFAULT;
+    static const int INTENSITY_MIN;
+    static const int INTENSITY_MAX;
+    static const int INTENSITY_DEFAULT;
     Lamp(const int power=POWER_DEFAULT, const int intensity=INTENSITY_DEFAULT);
     Lamp(const Lamp &lamp);
     void printParams() const;

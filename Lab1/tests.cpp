@@ -1,7 +1,9 @@
+#include <iostream>
+#include <QJsonParseError>
+#include <assert.h>
 #include "tests.h"
 #include "lamp.h"
-#include <assert.h>
-#include <iostream>
+#include "lampcollection.h"
 
 using namespace std;
 
@@ -67,6 +69,84 @@ void testLampLimits() {
     assert(Lamp::INTENSITY_MIN == lamp1.getIntensity());
 };
 
+void testLampCollectionConstructor() {
+    //Тестирование конструктора инициализации коллекции
+    LampCollection room1(2, 2);
+    for (int i=0; i<2; i++)
+        for (int j=0; j<2; j++) {
+            Lamp lamp(room1.getLamp(i, j));
+            assert(lamp.getPower() == Lamp::POWER_DEFAULT);
+            assert(lamp.getIntensity() == Lamp::INTENSITY_DEFAULT);
+        }
+};
+
+void testLampCollectionCopyConstructor() {
+    //Тестирование конструктора копирования коллекции
+    LampCollection room1(2, 2);
+    Lamp lamp1(100);
+    Lamp lamp2(120, 200);
+    room1.setLamp(0, 1, lamp1);
+    room1.setLamp(1, 1, lamp2);
+    LampCollection room2 = room1;
+    assert(room1.isEqual(room2));
+};
+
+void testLampCollectionSetLamp() {
+    //Тестирование методов установки и получения лампы по индексам
+    LampCollection room(5, 5);
+    Lamp lamp(100, 160);
+    room.setLamp(2, 3, lamp);
+    Lamp lamp2 = room.getLamp(2, 3);
+    assert(lamp.getPower() == lamp2.getPower());
+    assert(lamp.getIntensity() == lamp2.getIntensity());
+    try {
+        room.setLamp(-8, 7, lamp);
+        assert(false);
+    }  catch (const out_of_range &exc) {
+        assert(true);
+    };
+    try {
+        room.getLamp(8, 2);
+        assert(false);
+    }  catch (const out_of_range &exc) {
+        assert(true);
+    }
+};
+
+void testLampCollectionNumberOfLamps() {
+    //Тестирование методов подсчёта ламп в коллекции
+    LampCollection room(5, 3);
+    assert(5 == room.getLength());
+    assert(3 == room.getWidth());
+    assert(15 == room.getNumberOfLamps());
+};
+
+void testLampCollectionGetIlluminance() {
+    //Тестирование метода получения освещённости
+    LampCollection room(1, 1);
+    Lamp lamp(100, 100);
+    room.setLamp(0, 0, lamp);
+    assert(room.getIlluminance(0, 0, 0, 2) == 25);
+};
+
+void testLampCollectionJson() {
+    //Тестирование записи в файл json и чтения из файла
+    Lamp lamp(60, 90);
+    LampCollection room1(2, 2);
+    room1.setLamp(0, 0, lamp);
+    printLampCollection(room1);
+    if (LampCollectionToJson("data.json", room1)) {
+        try {
+            LampCollection room2(LampCollectionFromJson("data.json"));
+            assert(room1.isEqual(room2));
+        }  catch (QJsonParseError) {
+            assert(false);
+        }
+    }
+    else
+        assert(false);
+};
+
 void testLamps() {
     //Тестирование класса Лампа
     testLampWithDefaultConstructor();
@@ -76,5 +156,16 @@ void testLamps() {
     testLampSetPower();
     testLampSetIntensity();
     testLampLimits();
-    cout << "All tests are passed" << endl;
-}
+    cout << "All Lamp tests are passed" << endl;
+};
+
+void testLampCollection() {
+    //Тестирование класса Коллекция ламп
+    testLampCollectionConstructor();
+    testLampCollectionCopyConstructor();
+    testLampCollectionSetLamp();
+    testLampCollectionNumberOfLamps();
+    testLampCollectionJson();
+    testLampCollectionGetIlluminance();
+    cout << "All LampCollection tests are passed" << endl;
+};
