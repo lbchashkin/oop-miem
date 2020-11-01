@@ -30,9 +30,16 @@ Lamp::Lamp(const Lamp &lamp) {
 
 void Lamp::printParams() const {
     //Вывод на экран параметров лампы
+    cout << "Lamp" << endl;
     cout << "Power: " << power_ << endl;
     cout << "Intensity: " << intensity_ << endl;
 };
+int Lamp::getType() const {
+    //Возвращает тип объекта:
+    //0 - лампа, 1 - светодиодная лампа
+    return 0;
+};
+
 int Lamp::getPower() const {
     //Мощность лампы
     return power_;

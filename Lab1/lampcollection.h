@@ -11,16 +11,16 @@ public:
     LampCollection(const int n, const int m);
     LampCollection(const LampCollection &collection);
     double getIlluminance(const float x, const float y, const float z, const float height = HEIGHT_DEFAULT) const;
-    void setLamp(const int x, const int y, Lamp &lamp);
-    Lamp &getLamp(const int x, const int y) const;
+    void setLamp(const int x, const int y, Lamp* lamp);
+    void deleteLamp(const int x, const int y);
+    Lamp* getLamp(const int x, const int y) const;
     int getLength() const;
     int getWidth() const;
     int getNumberOfLamps() const;
-    void printLamps() const;
     bool isEqual(const LampCollection &collection) const;
     ~LampCollection();
-private:
-    Lamp **collection_;
+//private:
+    Lamp ***collection_;
     int n_, m_;
 };
 void printLampCollection(const LampCollection &collection);

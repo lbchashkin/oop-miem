@@ -13,11 +13,13 @@ public:
     static const int INTENSITY_DEFAULT;
     Lamp(const int power=POWER_DEFAULT, const int intensity=INTENSITY_DEFAULT);
     Lamp(const Lamp &lamp);
-    void printParams() const;
+    virtual void printParams() const;
+    virtual int getType() const;
     int getPower() const;
     int getIntensity() const;
     void setPower(const int power);
     void setIntensity(const int intensity);
+    virtual ~Lamp() {};
 private:
     int power_, intensity_;
 };
