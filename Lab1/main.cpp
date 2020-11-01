@@ -10,8 +10,8 @@ using namespace std;
 int main()
 {
     //Тестирование классов и пример использования
-    //testLamps();
-    //testLampCollection();
+    testLamps();
+    testLampCollection();
     Lamp lamp(60, 90);
     lamp.printParams();
     lamp.setPower(80);

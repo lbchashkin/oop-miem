@@ -139,9 +139,10 @@ void testLampCollectionGetIlluminance() {
 void testLampCollectionJson() {
     //Тестирование записи в файл json и чтения из файла
     Lamp lamp(60, 90);
+    LedLamp ledlamp(70, 80, 100, 255, 255);
     LampCollection room1(2, 2);
     room1.setLamp(0, 0, &lamp);
-    printLampCollection(room1);
+    room1.setLamp(1, 1, &lamp);
     if (LampCollectionToJson("data.json", room1)) {
         try {
             LampCollection room2(LampCollectionFromJson("data.json"));
@@ -154,8 +155,56 @@ void testLampCollectionJson() {
         assert(false);
 };
 
+void testLedLampWithDefaultConstructor() {
+    //Тестирование конструктора по умолчанию класса LedLamp
+    LedLamp ledlamp;
+    assert(ledlamp.getPower() == LedLamp::POWER_DEFAULT);
+    assert(ledlamp.getIntensity() == LedLamp::INTENSITY_DEFAULT);
+    assert(ledlamp.getRGBRed() == LedLamp::RGB_DEFAULT);
+    assert(ledlamp.getRGBBlue() == LedLamp::RGB_DEFAULT);
+    assert(ledlamp.getRGBGreen() == LedLamp::RGB_DEFAULT);
+};
+
+void testLedLampWithInitializeConstructor() {
+    //Тестирование конструктора инициализации класса LedLamp
+    LedLamp ledlamp(80, 90, 100, 200, 255);
+    assert(ledlamp.getPower() == 80);
+    assert(ledlamp.getIntensity() == 90);
+    assert(ledlamp.getRGBRed() == 100);
+    assert(ledlamp.getRGBBlue() == 255);
+    assert(ledlamp.getRGBGreen() == 200);
+};
+
+void testLedLampWithCopyConstructor() {
+    //Тестирование конструктора копирования класса LedLamp
+    LedLamp ledlamp(80, 90, 100, 200, 255);
+    LedLamp ledlamp2(ledlamp);
+    assert(ledlamp.getPower() == ledlamp2.getPower());
+    assert(ledlamp.getIntensity() == ledlamp2.getIntensity());
+    assert(ledlamp.getRGBRed() == ledlamp2.getRGBRed());
+    assert(ledlamp.getRGBBlue() == ledlamp2.getRGBBlue());
+    assert(ledlamp.getRGBGreen() == ledlamp2.getRGBGreen());
+};
+
+void testLedLampSetRGBChannel() {
+    //Тестирование установки значения цвета в одном из каналов RGB
+    LedLamp ledlamp;
+    ledlamp.setRGBRed(10);
+    ledlamp.setRGBBlue(20);
+    ledlamp.setRGBGreen(30);
+    assert(ledlamp.getRGBRed() == 10);
+    assert(ledlamp.getRGBBlue() == 20);
+    assert(ledlamp.getRGBGreen() == 30);
+};
+
+void testLedLampGetCurrentIntensity() {
+    //Тестирование метода расчёта текущей силы света класса LedLamp
+    LedLamp lamp(80, 90, 100, 100, 100);
+    assert(lamp.getCurrentIntensity() == 100);
+};
+
 void testLamps() {
-    //Тестирование класса Лампа
+    //Тестирование классов Лампа и Светодидная лампа
     testLampWithDefaultConstructor();
     testLampWithOneParam();
     testLampWithTwoParams();
@@ -164,7 +213,12 @@ void testLamps() {
     testLampSetIntensity();
     testLampLimits();
     testLampType();
-    cout << "All Lamp tests are passed" << endl;
+    testLedLampWithDefaultConstructor();
+    testLedLampWithInitializeConstructor();
+    testLedLampWithCopyConstructor();
+    testLedLampSetRGBChannel();
+    testLedLampGetCurrentIntensity();
+    cout << "All Lamp/LedLamp tests are passed" << endl;
 };
 
 void testLampCollection() {

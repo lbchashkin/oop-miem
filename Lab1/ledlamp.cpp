@@ -3,6 +3,8 @@
 
 using namespace std;
 
+const unsigned char LedLamp::RGB_DEFAULT = 0;
+
 LedLamp::LedLamp () : Lamp() {
     //Конструктор по умолчанию
     setRGBRed(0);

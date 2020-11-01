@@ -5,7 +5,7 @@
 
 class LedLamp: public Lamp {
 public:
-    const unsigned char RGB_DEFAULT = 0;
+    static const unsigned char RGB_DEFAULT;
     LedLamp();
     LedLamp(int power, int max_intensity, unsigned char R,
             unsigned char G, unsigned char B);
