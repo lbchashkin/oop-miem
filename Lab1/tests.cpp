@@ -123,9 +123,11 @@ void testLampCollectionSetLamp() {
 void testLampCollectionNumberOfLamps() {
     //Тестирование методов подсчёта ламп в коллекции
     LampCollection room(5, 3);
+    Lamp lamp;
+    room.setLamp(0, 0, &lamp);
     assert(5 == room.getLength());
     assert(3 == room.getWidth());
-    assert(15 == room.getNumberOfLamps());
+    assert(1 == room.getNumberOfLamps());
 };
 
 void testLampCollectionGetIlluminance() {
@@ -142,7 +144,7 @@ void testLampCollectionJson() {
     LedLamp ledlamp(70, 80, 100, 255, 255);
     LampCollection room1(2, 2);
     room1.setLamp(0, 0, &lamp);
-    room1.setLamp(1, 1, &lamp);
+    room1.setLamp(1, 1, &ledlamp);
     if (LampCollectionToJson("data.json", room1)) {
         try {
             LampCollection room2(LampCollectionFromJson("data.json"));

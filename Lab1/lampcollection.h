@@ -19,12 +19,13 @@ public:
     int getNumberOfLamps() const;
     bool isEqual(const LampCollection &collection) const;
     ~LampCollection();
-//private:
+private:
     Lamp ***collection_;
+    int count_;
     int n_, m_;
 };
 void printLampCollection(const LampCollection &collection);
 bool LampCollectionToJson(const QString &string, const LampCollection &collection);
-LampCollection& LampCollectionFromJson(const QString &string);
+LampCollection LampCollectionFromJson(const QString &string);
 
 #endif // LAMPCOLLECTION_H

@@ -29,6 +29,7 @@ LampCollection::LampCollection(const int n, const int m) {
         }
         n_ = n;
         m_ = m;
+        count_ = 0;
     }
     else
         throw out_of_range("n and m should be positive numbers");
@@ -38,12 +39,21 @@ LampCollection::LampCollection(const LampCollection &collection) {
     //Конструктор копирования
     n_ = collection.getLength();
     m_ = collection.getWidth();
+    count_ = collection.getNumberOfLamps();
     collection_ = new Lamp **[n_];
     for (int i = 0; i < n_; i++) {
         collection_[i] = new Lamp *[m_];
         for (int j = 0; j < m_; j ++)
             if (collection.getLamp(i, j))
-                collection_[i][j] = new Lamp(*collection.getLamp(i, j));
+            {
+                Lamp* lamp = collection.getLamp(i, j);
+                if (lamp->getType() == 0)
+                    collection_[i][j] = new Lamp(*lamp);
+                else {
+                    LedLamp* ledlamp = (LedLamp*)lamp;
+                    collection_[i][j] = new LedLamp(*ledlamp);
+                }
+            }
             else
                 collection_[i][j] = NULL;
     }
@@ -62,8 +72,10 @@ void LampCollection::setLamp(const int x, const int y, Lamp* lamp) {
     //Устанавливает лампу на определённое место по индексам в матрице
     //При неверных индексах бросает исключение out_of_range
     if ((x >= 0) && (x < n_) && (y >= 0) && (y < m_)) {
-        if (collection_[x][y])
+        if (collection_[x][y]) {
             delete collection_[x][y];
+            count_--;
+        }
         if (lamp) {
             if (lamp->getType() == 0)
                 collection_[x][y] = new Lamp(*lamp);
@@ -71,6 +83,7 @@ void LampCollection::setLamp(const int x, const int y, Lamp* lamp) {
                 LedLamp* ledlamp = (LedLamp*)lamp;
                 collection_[x][y] = new LedLamp(*ledlamp);
             }
+            count_++;
         }
         else
             collection_[x][y] = NULL;
@@ -83,8 +96,10 @@ void LampCollection::deleteLamp(const int x, const int y) {
     //Удаляет лампу по индексам
     //При неверных индексах бросает исключение out_of_range
     if ((x >= 0) && (x < n_) && (y >= 0) && (y < m_)) {
-        if (collection_[x][y])
+        if (collection_[x][y]) {
             delete collection_[x][y];
+            count_--;
+        }
         collection_[x][y] = NULL;
     }
     else
@@ -103,7 +118,7 @@ int LampCollection::getWidth() const {
 
 int LampCollection::getNumberOfLamps() const {
     //Возвращает количество ламп в коллекции
-    return n_*m_;
+    return count_;
 };
 
 void printLampCollection(const LampCollection &collection) {
@@ -122,7 +137,7 @@ void printLampCollection(const LampCollection &collection) {
     }
 };
 
-LampCollection& LampCollectionFromJson(const QString &string) {
+LampCollection LampCollectionFromJson(const QString &string) {
     //Читает коллекцию из файла json
     QFile file(string);
     if (file.open(QFile::ReadOnly)) {
@@ -132,7 +147,7 @@ LampCollection& LampCollectionFromJson(const QString &string) {
         QJsonObject size = matrix[0].toObject();
         int n = size["n"].toInt();
         int m = size["m"].toInt();
-        static LampCollection collection(n, m);
+        LampCollection collection(n, m);
         for (int i=0; i<n; i++) {
             QJsonArray matrix_string = matrix[i+1].toArray();
             for (int j=0; j<m; j++) {
@@ -153,8 +168,6 @@ LampCollection& LampCollectionFromJson(const QString &string) {
                         collection.setLamp(i, j, &lamp);
                     }
                 }
-                else
-                    Lamp lamp(lamp_object["Power"].toInt(), lamp_object["Intensity"].toInt());
             }
         }
         return collection;
@@ -181,13 +194,15 @@ bool LampCollectionToJson(const QString &string, const LampCollection &collectio
                 if (collection.getLamp(i, j)) {
                     lamp.insert("Power", collection.getLamp(i, j)->getPower());
                     lamp.insert("Intensity", collection.getLamp(i, j)->getIntensity());
-                    if (collection.getLamp(i, j)->getType() == 0) {
+                    if (collection.getLamp(i, j)->getType() == 1) {
                         lamp.insert("Type", "LedLamp");
                         LedLamp* ledlamp = (LedLamp*)collection.getLamp(i, j);
                         lamp.insert("R", ledlamp->getRGBRed());
                         lamp.insert("G", ledlamp->getRGBGreen());
                         lamp.insert("B", ledlamp->getRGBBlue());
                     }
+                    else
+                        lamp.insert("Type", "Lamp");
                 }
                 else
                     lamp.insert("Type", "None");
@@ -293,6 +308,7 @@ LampCollection::~LampCollection() {
         }
         delete [] collection_;
         collection_ = NULL;
+        count_ = 0;
     };
 };
 
