@@ -85,7 +85,37 @@ LampDialog::~LampDialog()
 
 void LampDialog::on_buttonBox_clicked(QAbstractButton *button)
 {
-
+    if (button->text() == tr("Reset")) {
+        setDialogWindow(type_);
+        if (type_)
+            setValues();
+    }
+    else if (button->text() == tr("Cancel")) {
+        this->reject();
+        this->close();
+    }
+    else {
+        //Сохранить
+        int type = ui->type->currentIndex();
+        if (lamp_)
+            delete lamp_;
+        if (type == 0)
+            lamp_ = NULL;
+        else {
+            int power = ui->power->value();
+            int intensity = ui->intensity->value();
+            if (type == 2) {
+                unsigned char R = ui->redSlider->value();
+                unsigned char G = ui->greenSlider->value();
+                unsigned char B = ui->blueSlider->value();
+                lamp_ = new LedLamp(power, intensity, R, G, B);
+            }
+            else
+                lamp_ = new Lamp(power, intensity);
+        }
+        this->accept();
+        this->close();
+    }
 }
 
 void LampDialog::on_type_currentIndexChanged(int index)

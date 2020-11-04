@@ -1,0 +1,52 @@
+[
+    {
+        "m": 2,
+        "n": 3
+    },
+    [
+        {
+            "Type": "None"
+        },
+        {
+            "B": 0,
+            "G": 0,
+            "Intensity": 100,
+            "Power": 60,
+            "R": 255,
+            "Type": "LedLamp"
+        }
+    ],
+    [
+        {
+            "Intensity": 100,
+            "Power": 60,
+            "Type": "Lamp"
+        },
+        {
+            "B": 0,
+            "G": 255,
+            "Intensity": 100,
+            "Power": 60,
+            "R": 0,
+            "Type": "LedLamp"
+        }
+    ],
+    [
+        {
+            "B": 255,
+            "G": 255,
+            "Intensity": 100,
+            "Power": 60,
+            "R": 255,
+            "Type": "LedLamp"
+        },
+        {
+            "B": 255,
+            "G": 0,
+            "Intensity": 100,
+            "Power": 60,
+            "R": 0,
+            "Type": "LedLamp"
+        }
+    ]
+]

@@ -73,7 +73,10 @@ void MainWindow::on_tableWidget_itemDoubleClicked(QTableWidgetItem *item)
     else
         k = lamp->getType()+1;
     LampDialog d(this, lamp, k);
-    d.exec();
+    if (d.exec()) {
+        lampcollection->setLamp(item->row(), item->column(), d.getLamp());
+        setTableWidget(lampcollection->getLength(), lampcollection->getWidth());
+    }
 }
 
 void MainWindow::on_action_triggered()
