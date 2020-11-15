@@ -27,10 +27,28 @@ public:
     map<char, nodeitem*> items;
 };
 
+class PrefixTree;
+
+class iteratoritem{
+public:
+    iteratoritem(char key[], int length) {
+        _key = new char[length+1];
+        for (int i=0; i<=length; i++)
+            _key[i] = key[i];
+        _length = length;
+        next = NULL;
+    };
+    char* _key;
+    int _length;
+    iteratoritem* next;
+    ~iteratoritem() {delete[] _key;}
+};
+
+
 
 class PrefixTree {
 public:
-    PrefixTree() {cout << "New PrefixTree" << endl; _root = new nodeitem; count_keys = 0; count_nodes = 0;}
+    PrefixTree() {cout << "New PrefixTree" << endl; _root = new nodeitem; count_keys = 0; count_nodes = 0; max_length = 0;}
     void add(char key[], int value) {
         int i=0;
         nodeitem* t = _root;
@@ -46,6 +64,7 @@ public:
             count_keys--;
         t->value = value;
         t->isvalue = true;
+        if (max_length < i) max_length = i;
         count_keys++;
     }
     int& operator[](char key[]) {
@@ -121,15 +140,98 @@ public:
         }
         return t->isvalue;
     }
+    friend class PrefixTreeIterator;
     int getCountKeys() {return count_keys;}
     int getCountNodes() {return count_nodes;}
+    int getMaxLength() {return max_length;}
     ~PrefixTree() {cout << "Delete Tree" << endl; delete _root;}
 private:
     int count_nodes;
     int count_keys;
+    int max_length;
     nodeitem* _root;
 };
 
+class PrefixTreeIterator {
+public:
+    PrefixTreeIterator(PrefixTree* tree, char key[]) {
+        int i=0;
+        nodeitem* t = tree->_root;
+        char* keyitem = new char[tree->getMaxLength()+1];
+        while (key[i]) {
+            map<char, nodeitem*> dict = t->items;
+            if (t->items.count(key[i])) {
+                t = dict[key[i]];
+                keyitem[i] = key[i];
+            }
+            else
+                return;
+            i++;
+        }
+        addkey(t, keyitem, i);
+        this->begin();
+        delete[] keyitem;
+    }
+    PrefixTreeIterator operator++(int) {
+        PrefixTreeIterator newiterator(*this);
+        if (curr) curr = curr->next;
+        return newiterator;
+    }
+    char* operator*() {
+        if (curr)
+            return curr->_key;
+        else
+            return (char *)"";
+    }
+    PrefixTreeIterator(const PrefixTreeIterator& iter) {
+        if (iter.first) {
+            first = new iteratoritem(iter.first->_key, iter.first->_length);
+            iteratoritem* t1 = iter.first->next;
+            iteratoritem* t2 = first;
+            curr = first;
+            while (t1) {
+                iteratoritem* new_item = new iteratoritem(t1->_key, t1->_length);
+                if (t1 == iter.curr)
+                    curr = new_item;
+                t2->next = new_item;
+                t2 = new_item;
+                t1 = t1->next;
+            }
+        }
+        else
+            return;
+    }
+    void begin() {
+        curr = first;
+    }
+    void end() {
+        curr = NULL;
+    }
+    ~PrefixTreeIterator() {}
+private:
+    iteratoritem* first = NULL;
+    iteratoritem* curr = first;
+    void addkey(nodeitem* root, char key[], int i) {
+        if (root->isvalue) {
+            iteratoritem* t = new iteratoritem(key, i);
+            if (!first) {
+                first = t;
+                curr = t;
+            }
+            curr->next = t;
+            curr = curr->next;
+        }
+        map<char, nodeitem*>::iterator it, end;
+        it = root->items.begin();
+        end = root->items.end();
+        while (it != end) {
+            key[i] = it->first;
+            addkey(it->second, key, i+1);
+            key[i] = '\0';
+            it++;
+        }
+    }
+};
 
 void testDelete() {
     PrefixTree tree;
@@ -249,6 +351,18 @@ void test() {
 
 int main()
 {
+    /*PrefixTree tree;
+    char s[] = "Leonid";
+    char s2[] = "Leopold";
+    char s3[] = "Leofed";
+    char s4[] = "Leonu";
+    tree.add(s, 10);
+    tree.add(s2, 11);
+    tree.add(s3, 10);
+    tree.add(s4, 11);
+    s[0] = '\0';
+    PrefixTreeIterator iter(&tree, s);
+    cout << *iter2 << endl;*/
     test();
     return 0;
 }
