@@ -6,28 +6,31 @@
 #include <QString>
 
 using namespace std;
-template <class V>
+template <class K, class V>
 class PrefixTreeIterator;
 
-template <class V>
+template <class K, class V>
 class PrefixTree {
 public:
     PrefixTree();
     PrefixTree(PrefixTree& tree);
     void add(const char key[], const V value);
-    PrefixTreeIterator<V> getKeys(const char key[]) const;
+    PrefixTreeIterator<K, V> getKeys(const char key[]) const;
     V& operator[](const char key[]) const;
     bool operator==(const PrefixTree& tree);
     void delkey(char key[]);
     void delall();
     bool isKey(char key[]);
-    friend class PrefixTreeIterator<V>;
+    friend class PrefixTreeIterator<K, V>;
     int getCountKeys() const;
     int getCountNodes() const;
     int getMaxLength() const;
+    bool PrefixTreeToJSON(const QString &filename);
+    void PrefixTreeFromJSON(const QString &filename);
     ~PrefixTree();
 private:
     class nodeitem {
+        //Узел префиксного дерева
     public:
         nodeitem() {cout << "New nodeitem" << endl;}
         void add(const char key) {
@@ -49,17 +52,15 @@ private:
         nodeitem* parent = NULL;
         map<char, nodeitem*> items;
     };
-    int count_nodes;
-    int count_keys;
-    int max_length;
+    int count_nodes; //Количество узлов
+    int count_keys; //Количество ключей
+    int max_length; //Максимальная длина ключа
     nodeitem* _root;
 };
 
-//bool PrefixTreeToJSON(const QString &filename, const PrefixTree& tree);
-//PrefixTree PrefixTreeFromJSON(const QString &filename);
-
-template <class V>
-void PrefixTree<V>::add(const char key[], const V value) {
+template <class K, class V>
+void PrefixTree<K, V>::add(const char key[], const V value) {
+    //Добавление пары ключ-значение в префиксное дерево
     int i=0;
     nodeitem* t = _root;
     while (key[i]) {
@@ -78,8 +79,10 @@ void PrefixTree<V>::add(const char key[], const V value) {
     count_keys++;
 }
 
-template <class V>
-V& PrefixTree<V>::operator[](const char key[]) const {
+template <class K, class V>
+V& PrefixTree<K, V>::operator[](const char key[]) const {
+    //Перегрузка [] - получение значения по ключу
+    //При отсутствии ключа - исключение out_of_range
     int i=0;
     nodeitem* t = _root;
     while (key[i]) {
@@ -96,8 +99,10 @@ V& PrefixTree<V>::operator[](const char key[]) const {
         throw out_of_range("Key error");
 }
 
-template <class V>
-void PrefixTree<V>::delkey(char key[]) {
+template <class K, class V>
+void PrefixTree<K, V>::delkey(char key[]) {
+    //Удаление ключа
+    //При отсутствии ключа - исключение out_of_range
     if (isKey(key)) {
         int i=0;
         nodeitem* t = _root;
@@ -135,8 +140,9 @@ void PrefixTree<V>::delkey(char key[]) {
         throw out_of_range("Key error");
 }
 
-template <class V>
-void PrefixTree<V>::delall() {
+template <class K, class V>
+void PrefixTree<K, V>::delall() {
+    //Удаление всех значений
     delete _root;
     count_nodes = 0;
     count_keys = 0;
@@ -145,8 +151,9 @@ void PrefixTree<V>::delall() {
 
 }
 
-template <class V>
-bool PrefixTree<V>::isKey(char key[]) {
+template <class K, class V>
+bool PrefixTree<K, V>::isKey(char key[]) {
+    //Проверка является ли данный ключ ключом префиксного дерева
     int i=0;
     nodeitem* t = _root;
     while (key[i]) {
@@ -160,31 +167,36 @@ bool PrefixTree<V>::isKey(char key[]) {
     return t->isvalue;
 }
 
-template <class V>
-int PrefixTree<V>::getCountKeys() const {
+template <class K, class V>
+int PrefixTree<K, V>::getCountKeys() const {
+    //Количество ключей
     return count_keys;
 }
 
-template <class V>
-int PrefixTree<V>::getCountNodes() const {
+template <class K, class V>
+int PrefixTree<K, V>::getCountNodes() const {
+    //Количество узлов
     return count_nodes;
 }
 
-template <class V>
-int PrefixTree<V>::getMaxLength() const {
+template <class K, class V>
+int PrefixTree<K, V>::getMaxLength() const {
+    //Максимальная длина ключа
     return max_length;
 }
 
-template <class V>
-PrefixTree<V>::PrefixTree() {
+template <class K, class V>
+PrefixTree<K, V>::PrefixTree() {
+    //Конструктор по умолчанию
     count_keys = 0;
     count_nodes = 0;
     max_length = 0;
     _root = new nodeitem;
 }
 
-template <class V>
-PrefixTree<V>::~PrefixTree() {
+template <class K, class V>
+PrefixTree<K, V>::~PrefixTree() {
+    //Деструктор
     cout << "Delete Tree" << endl;
     delete _root;
 }

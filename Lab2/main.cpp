@@ -7,7 +7,8 @@
 using namespace std;
 
 void testDelete() {
-    PrefixTree<int> tree;
+    //Тестирование удаления
+    PrefixTree<int, int> tree;
     char key1[] = "Leonid";
     char key2[] = "Leopold";
     int value = 2001;
@@ -29,7 +30,8 @@ void testDelete() {
 }
 
 void testDeleteOne() {
-    PrefixTree<int> tree;
+    //Тестирование удаления единственного ключа
+    PrefixTree<int, int> tree;
     char key[] = "Leonid";
     int value = 2001;
     tree.add(key, value);
@@ -45,7 +47,8 @@ void testDeleteOne() {
 }
 
 void testDeletePartDelete() {
-    PrefixTree<int> tree;
+    //Тестирование частичного удаления
+    PrefixTree<int, int> tree;
     char key1[] = "Leonid";
     char key2[] = "Leo";
     int value = 2001;
@@ -58,7 +61,8 @@ void testDeletePartDelete() {
 }
 
 void testDeleteNoDelete() {
-    PrefixTree<int> tree;
+    //Тестирование невозможности удаления
+    PrefixTree<int, int> tree;
     char key1[] = "Leonid";
     char key2[] = "Leo";
     int value = 2001;
@@ -71,7 +75,8 @@ void testDeleteNoDelete() {
 }
 
 void testAddOne() {
-    PrefixTree<int> tree;
+    //Тестирование добавления одного ключа
+    PrefixTree<int, int> tree;
     char key[] = "Leonid";
     int value = 2001;
     assert(tree.getCountKeys() == 0); //Тест 1
@@ -85,7 +90,8 @@ void testAddOne() {
 }
 
 void testAddLot() {
-    PrefixTree<int> tree;
+    //Тестирование добавления нескольких ключей
+    PrefixTree<int, int> tree;
     char key1[] = "Leonid";
     char key2[] = "Leo";
     char key3[] = "Lamp";
@@ -113,6 +119,7 @@ void testAddLot() {
 }
 
 bool isEqual(char s1[], char s2[]) {
+    //Проверка на равенство двух векторов
     char* t1 = s1;
     char* t2 = s2;
     while (*t1) {
@@ -127,7 +134,8 @@ bool isEqual(char s1[], char s2[]) {
 };
 
 void testPrefixIterator() {
-    PrefixTree<int> tree;
+    //Тестирование итератора
+    PrefixTree<int, int> tree;
     char s1[] = "Leonid";
     char s2[] = "Leopold";
     char s3[] = "Leofed";
@@ -136,14 +144,14 @@ void testPrefixIterator() {
     tree.add(s2, 11);
     tree.add(s3, 10);
     tree.add(s4, 11);
-    PrefixTreeIterator<int> iter3 = tree.getKeys((char *)"K");
-    assert(isEqual((char *)"", *iter3));
-    PrefixTreeIterator<int> iter2 = tree.getKeys(s3);
+    PrefixTreeIterator<int, int> iter3 = tree.getKeys((char *)"K");
+    assert(!*iter3);
+    PrefixTreeIterator<int, int> iter2 = tree.getKeys(s3);
     assert(isEqual(s3, *iter2));
     iter2++;
-    assert(isEqual((char *)"", *iter2));
+    assert(!*iter2);
     s1[0] = 0;
-    PrefixTreeIterator<int> iter = tree.getKeys(s1);
+    PrefixTreeIterator<int, int> iter = tree.getKeys(s1);
     assert(isEqual(s3, *iter));
     iter++;
     s1[0] = 'L';
@@ -153,13 +161,13 @@ void testPrefixIterator() {
     iter++;
     assert(isEqual(s2, *iter));
     iter++;
-    s1[0] = '\0';
-    assert(isEqual(s1, *iter));
-};
+    assert(!*iter);
+}
 
 void testDeleteAll() {
-    PrefixTree<int> tree1;
-    PrefixTree<int> tree2;
+    //Тестирование полного удаления
+    PrefixTree<int, int> tree1;
+    PrefixTree<int, int> tree2;
     tree1.add("Leonid", 2001);
     tree1.add("Leo", 2001);
     tree1.delall();
@@ -167,10 +175,11 @@ void testDeleteAll() {
 };
 
 void testCopyConstructor() {
-    PrefixTree<int> tree;
+    //Тестирование конструктора копирования
+    PrefixTree<int, int> tree;
     tree.add("Leonid", 2001);
     tree.add("Leo", 2002);
-    PrefixTree<int> copytree(tree);
+    PrefixTree<int, int> copytree(tree);
     assert(copytree == tree); //Тест 8а
     copytree.add("Leo", 2003);
     assert(!(copytree == tree)); //Тест 8б
@@ -181,6 +190,7 @@ void testPrefixTreeToJSON() {
     tree.add("Leonid", 2001);
     tree.add("Leo", 2002);
     PrefixTreeToJSON("tree.json", tree);
+    PrefixTreeFromJSON("tree.json");
 }
 */
 void test() {

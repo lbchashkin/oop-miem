@@ -5,10 +5,11 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 
-template <class V>
+template <class K, class V>
 class PrefixTreeIterator {
+    //Итератор по ключам префиксного дерева
 public:
-    PrefixTreeIterator(const PrefixTree<V>* tree, const char key[]);
+    PrefixTreeIterator(const PrefixTree<K, V>* tree, const char key[]);
     PrefixTreeIterator operator++(int);
     char* operator*() const;
     PrefixTreeIterator(const PrefixTreeIterator& iter);
@@ -17,6 +18,7 @@ public:
     ~PrefixTreeIterator();
 private:
     class iteratoritem{
+        //Элемент списка ключей
     public:
         iteratoritem(const char key[], const int length) {
             _key = new char[length+1];
@@ -33,16 +35,17 @@ private:
     };
     iteratoritem* first = NULL;
     iteratoritem* curr = first;
-    void addkey(typename PrefixTree<V>::nodeitem* root, char key[], const V& i);
+    void addkey(typename PrefixTree<K, V>::nodeitem* root, char key[], const int i);
 };
 
-template <class V>
-PrefixTreeIterator<V>::PrefixTreeIterator(const PrefixTree<V> *tree, const char key[]) {
+template <class K, class V>
+PrefixTreeIterator<K, V>::PrefixTreeIterator(const PrefixTree<K, V> *tree, const char key[]) {
+    //Конструктор инициализации
     int i=0;
-    typename PrefixTree<V>::nodeitem* t = tree->_root;
+    typename PrefixTree<K, V>::nodeitem* t = tree->_root;
     char* keyitem = new char[tree->getMaxLength()+1];
     while (key[i]) {
-        map<char, typename PrefixTree<V>::nodeitem*> dict = t->items;
+        map<char, typename PrefixTree<K, V>::nodeitem*> dict = t->items;
         if (t->items.count(key[i])) {
             t = dict[key[i]];
             keyitem[i] = key[i];
@@ -56,28 +59,32 @@ PrefixTreeIterator<V>::PrefixTreeIterator(const PrefixTree<V> *tree, const char 
     delete[] keyitem;
 }
 
-template <class V>
-PrefixTreeIterator<V> PrefixTree<V>::getKeys(const char key[]) const {
-    return PrefixTreeIterator<V>(this, key);
+template <class K, class V>
+PrefixTreeIterator<K, V> PrefixTree<K, V>::getKeys(const char key[]) const {
+    //Получение ключей, начинающихся с заданной последовательности
+    return PrefixTreeIterator<K, V>(this, key);
 }
 
-template <class V>
-PrefixTreeIterator<V> PrefixTreeIterator<V>::operator++(int) {
+template <class K, class V>
+PrefixTreeIterator<K, V> PrefixTreeIterator<K, V>::operator++(int) {
+    //Перегрзка оператора ++ - движение вперёд по списку ключей
     PrefixTreeIterator newiterator(*this);
     if (curr) curr = curr->next;
     return newiterator;
 }
 
-template <class V>
-char* PrefixTreeIterator<V>::operator*() const {
+template <class K, class V>
+char* PrefixTreeIterator<K, V>::operator*() const {
+    //Перегрузка * - получение значения
     if (curr)
         return curr->_key;
     else
-        return (char *)"";
+        return NULL;
 }
 
-template <class V>
-PrefixTreeIterator<V>::PrefixTreeIterator(const PrefixTreeIterator<V>& iter) {
+template <class K, class V>
+PrefixTreeIterator<K, V>::PrefixTreeIterator(const PrefixTreeIterator<K, V>& iter) {
+    //Конструктор копирования
     if (iter.first) {
         first = new iteratoritem(iter.first->_key, iter.first->_length);
         iteratoritem* t1 = iter.first->next;
@@ -96,18 +103,21 @@ PrefixTreeIterator<V>::PrefixTreeIterator(const PrefixTreeIterator<V>& iter) {
         return;
 }
 
-template <class V>
-void PrefixTreeIterator<V>::begin() {
+template <class K, class V>
+void PrefixTreeIterator<K, V>::begin() {
+    //Переставить итератор на начало списка
     curr = first;
 }
 
-template <class V>
-void PrefixTreeIterator<V>::end() {
+template <class K, class V>
+void PrefixTreeIterator<K, V>::end() {
+    //Переставить итератор на конец списка
     curr = NULL;
 }
 
-template <class V>
-PrefixTreeIterator<V>::~PrefixTreeIterator() {
+template <class K, class V>
+PrefixTreeIterator<K, V>::~PrefixTreeIterator() {
+    //Деструктор итератора
     iteratoritem* t = first;
     while (t) {
         t = first->next;
@@ -116,8 +126,9 @@ PrefixTreeIterator<V>::~PrefixTreeIterator() {
     }
 }
 
-template <class V>
-void PrefixTreeIterator<V>::addkey(typename PrefixTree<V>::nodeitem* root, char key[], const V& i) {
+template <class K, class V>
+void PrefixTreeIterator<K, V>::addkey(typename PrefixTree<K, V>::nodeitem* root, char key[], const int i) {
+    //Добавление элемента в список
     if (root->isvalue) {
         iteratoritem* t = new iteratoritem(key, i);
         if (!first) {
@@ -128,7 +139,7 @@ void PrefixTreeIterator<V>::addkey(typename PrefixTree<V>::nodeitem* root, char 
             curr->next = t;
         curr = t;
     }
-    typename map<char, typename PrefixTree<V>::nodeitem*>::iterator it, end;
+    typename map<char, typename PrefixTree<K, V>::nodeitem*>::iterator it, end;
     it = root->items.begin();
     end = root->items.end();
     while (it != end) {
@@ -139,28 +150,28 @@ void PrefixTreeIterator<V>::addkey(typename PrefixTree<V>::nodeitem* root, char 
     }
 }
 
-template <class V>
-PrefixTree<V>::PrefixTree(PrefixTree &tree) {
+template <class K, class V>
+PrefixTree<K, V>::PrefixTree(PrefixTree &tree) {
+    //Конструктор копирования
     cout << "New PrefixTree" << endl;
-    PrefixTreeIterator<V> iter = tree.getKeys("");
+    PrefixTreeIterator<K, V> iter = tree.getKeys("");
     count_keys = 0;
     count_nodes = 0;
     max_length = 0;
     _root = new nodeitem;
-    char s[] = "";
-    while (*(*iter) != *s) {
+    while (*iter) {
         add(*iter, tree[*iter]);
         iter++;
     }
 }
 
-template <class V>
-bool PrefixTree<V>::operator==(const PrefixTree &tree)
+template <class K, class V>
+bool PrefixTree<K, V>::operator==(const PrefixTree &tree)
 {
-    PrefixTreeIterator<V> iter = getKeys("");
-    PrefixTreeIterator<V> iter2 = getKeys("");
-    char s[] = "";
-    while (*(*iter) != *s) {
+    //Перегрузка оператора == равенство 2 деревьев
+    PrefixTreeIterator<K, V> iter = getKeys("");
+    PrefixTreeIterator<K, V> iter2 = getKeys("");
+    while (*iter) {
         try {
             if ((*this)[*iter] != tree[*iter])
                 return false;
@@ -169,7 +180,7 @@ bool PrefixTree<V>::operator==(const PrefixTree &tree)
         }
         iter++;
     }
-    while (*(*iter2) != *s) {
+    while (*iter2) {
         try {
             if ((*this)[*iter2] != tree[*iter2])
                 return false;
