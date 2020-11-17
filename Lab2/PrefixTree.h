@@ -2,6 +2,7 @@
 #define PREFIXTREE_H
 
 #include <map>
+#include <vector>
 #include <iostream>
 #include <QString>
 
@@ -14,32 +15,31 @@ class PrefixTree {
 public:
     PrefixTree();
     PrefixTree(PrefixTree& tree);
-    void add(const char key[], const V value);
-    PrefixTreeIterator<K, V> getKeys(const char key[]) const;
-    V& operator[](const char key[]) const;
+    void add(const K& key, const V& value);
+    vector<K> getKeys(const K& key);
+    V& operator[](const K& key) const;
     bool operator==(const PrefixTree& tree);
-    void delkey(char key[]);
+    void delkey(const K& key);
     void delall();
-    bool isKey(char key[]);
-    friend class PrefixTreeIterator<K, V>;
+    bool isKey(const K& key);
     int getCountKeys() const;
     int getCountNodes() const;
     int getMaxLength() const;
-    bool PrefixTreeToJSON(const QString &filename);
-    void PrefixTreeFromJSON(const QString &filename);
+    //bool PrefixTreeTo...(const QString &filename);
+    //void PrefixTreeFrom...(const QString &filename);
     ~PrefixTree();
 private:
     class nodeitem {
         //Узел префиксного дерева
     public:
         nodeitem() {cout << "New nodeitem" << endl;}
-        void add(const char key) {
+        void add(const K key) {
             items[key] = new nodeitem;
             items[key]->parent = this;
                            }
         ~nodeitem() {
             cout << "Delete nodeitem" << endl;
-            typename map<char, nodeitem*>::iterator it, end;
+            typename map<K, nodeitem*>::iterator it, end;
             it = items.begin();
             end = items.end();
             while (it != end) {
@@ -50,8 +50,9 @@ private:
         V value;
         bool isvalue = false;
         nodeitem* parent = NULL;
-        map<char, nodeitem*> items;
+        map<K, nodeitem*> items;
     };
+    void addkey(typename PrefixTree<K, V>::nodeitem* root, K* key, const int i, vector<K>* vect);
     int count_nodes; //Количество узлов
     int count_keys; //Количество ключей
     int max_length; //Максимальная длина ключа
@@ -59,16 +60,17 @@ private:
 };
 
 template <class K, class V>
-void PrefixTree<K, V>::add(const char key[], const V value) {
+void PrefixTree<K, V>::add(const K& key, const V& value) {
     //Добавление пары ключ-значение в префиксное дерево
     int i=0;
     nodeitem* t = _root;
-    while (key[i]) {
-        if (t->items.count(key[i]) == 0) {
-            t->add(key[i]);
+    while (i<(int)key.size()) {
+        K new_key = {key[i]};
+        if (t->items.count(new_key) == 0) {
+            t->add(new_key);
             count_nodes++;
         }
-        t = t->items.at(key[i]);
+        t = t->items.at(new_key);
         i++;
     }
     if (t->isvalue)
@@ -79,16 +81,42 @@ void PrefixTree<K, V>::add(const char key[], const V value) {
     count_keys++;
 }
 
+template<class K, class V>
+vector<K> PrefixTree<K, V>::getKeys(const K &key) {
+    //Получение вектора ключей, начинающихся с заданной последовательности
+    vector<K> vect;
+    int i=0;
+    typename PrefixTree<K, V>::nodeitem* t = _root;
+    K* keyitem = new K;
+    while (i<(int)key.size()) {
+        map<K, typename PrefixTree<K, V>::nodeitem*> dict = t->items;
+        K new_key = {key[i]};
+        if (t->items.count(new_key)) {
+            t = dict[new_key];
+            keyitem->push_back(key[i]);
+        }
+        else
+            return vect;
+        i++;
+    }
+    addkey(t, keyitem, i, &vect);
+    delete keyitem;
+    return vect;
+}
+
+
+
 template <class K, class V>
-V& PrefixTree<K, V>::operator[](const char key[]) const {
+V& PrefixTree<K, V>::operator[](const K& key) const {
     //Перегрузка [] - получение значения по ключу
     //При отсутствии ключа - исключение out_of_range
     int i=0;
     nodeitem* t = _root;
-    while (key[i]) {
-        map<char, nodeitem*> dict = t->items;
-        if (t->items.count(key[i]))
-            t = dict[key[i]];
+    while (i<(int)key.size()) {
+        map<K, nodeitem*> dict = t->items;
+        K new_key = {key[i]};
+        if (t->items.count(new_key))
+            t = dict[new_key];
         else
             throw out_of_range("Key error");
         i++;
@@ -100,15 +128,16 @@ V& PrefixTree<K, V>::operator[](const char key[]) const {
 }
 
 template <class K, class V>
-void PrefixTree<K, V>::delkey(char key[]) {
+void PrefixTree<K, V>::delkey(const K& key) {
     //Удаление ключа
     //При отсутствии ключа - исключение out_of_range
     if (isKey(key)) {
         int i=0;
         nodeitem* t = _root;
-        while (key[i]) {
-            map<char, nodeitem*> dict = t->items;
-            t = dict[key[i]];
+        while (i<(int)key.size()) {
+            map<K, nodeitem*> dict = t->items;
+            K new_key = {key[i]};
+            t = dict[new_key];
             i++;
         }
         i--;
@@ -126,7 +155,8 @@ void PrefixTree<K, V>::delkey(char key[]) {
             else
                 break;
         if (t->parent) {
-            t->parent->items.erase(key[i]);
+            K new_key = {key[i]};
+            t->parent->items.erase(new_key);
             delete t;
             count_nodes--;
         }
@@ -152,14 +182,15 @@ void PrefixTree<K, V>::delall() {
 }
 
 template <class K, class V>
-bool PrefixTree<K, V>::isKey(char key[]) {
+bool PrefixTree<K, V>::isKey(const K& key) {
     //Проверка является ли данный ключ ключом префиксного дерева
     int i=0;
     nodeitem* t = _root;
-    while (key[i]) {
-        map<char, nodeitem*> dict = t->items;
-        if (t->items.count(key[i]))
-            t = dict[key[i]];
+    while (i<(int)key.size()) {
+        map<K, nodeitem*> dict = t->items;
+        K new_key = {key[i]};
+        if (t->items.count(new_key))
+            t = dict[new_key];
         else
             return false;
         i++;
@@ -195,9 +226,73 @@ PrefixTree<K, V>::PrefixTree() {
 }
 
 template <class K, class V>
+PrefixTree<K, V>::PrefixTree(PrefixTree &tree) {
+    //Конструктор копирования
+    cout << "New PrefixTree" << endl;
+    K empty;
+    vector<K> vect = tree.getKeys(empty);
+    count_keys = 0;
+    count_nodes = 0;
+    max_length = 0;
+    _root = new nodeitem;
+    int i = 0;
+    while (i < (int)vect.size()) {
+        add(vect[i], tree[vect[i]]);
+        i++;
+    }
+}
+
+template <class K, class V>
+bool PrefixTree<K, V>::operator==(const PrefixTree &tree)
+{
+    //Перегрузка оператора == равенство 2 деревьев
+    K empty;
+    vector<K> vect1 = getKeys(empty);
+    vector<K> vect2 = getKeys(empty);
+    int i = 0;
+    while (i < (int)vect1.size()) {
+        try {
+            if ((*this)[vect1[i]] != tree[vect1[i]])
+                return false;
+        }  catch (out_of_range) {
+            return false;
+        }
+        i++;
+    }
+    i = 0;
+    while (i < (int)vect2.size()) {
+        try {
+            if ((*this)[vect2[i]] != tree[vect2[i]])
+                return false;
+        }  catch (out_of_range) {
+            return false;
+        }
+        i++;
+    }
+    return true;
+}
+
+template <class K, class V>
 PrefixTree<K, V>::~PrefixTree() {
     //Деструктор
     cout << "Delete Tree" << endl;
     delete _root;
+}
+
+template<class K, class V>
+void PrefixTree<K, V>::addkey(typename PrefixTree<K, V>::nodeitem* root, K* key, const int i, vector<K>* vect) {
+    //Добавление ключа в вектор
+    if (root->isvalue) {
+        vect->push_back(*key);
+    }
+    typename map<K, typename PrefixTree<K, V>::nodeitem*>::iterator it, end;
+    it = root->items.begin();
+    end = root->items.end();
+    while (it != end) {
+        key->push_back((it->first)[0]);
+        addkey(it->second, key, i+1, vect);
+        key->pop_back();
+        it++;
+    }
 }
 #endif // PREFIXTREE_H
