@@ -2,13 +2,12 @@
 #define PREFIXTREE_H
 
 #include <map>
-#include <vector>
-#include <iostream>
 #include <QString>
+#include <QFile>
+#include <QVector>
+#include <QDataStream>
 
 using namespace std;
-template <class K, class V>
-class PrefixTreeIterator;
 
 template <class K, class V>
 class PrefixTree {
@@ -16,7 +15,7 @@ public:
     PrefixTree();
     PrefixTree(PrefixTree& tree);
     void add(const K& key, const V& value);
-    vector<K> getKeys(const K& key);
+    QVector<K> getKeys(const K& key);
     V& operator[](const K& key) const;
     bool operator==(const PrefixTree& tree);
     void delkey(const K& key);
@@ -25,20 +24,22 @@ public:
     int getCountKeys() const;
     int getCountNodes() const;
     int getMaxLength() const;
-    //bool PrefixTreeTo...(const QString &filename);
-    //void PrefixTreeFrom...(const QString &filename);
+    bool toFile(const QString &filename);
+    bool fromFile(const QString &filename);
     ~PrefixTree();
 private:
     class nodeitem {
         //Узел префиксного дерева
     public:
-        nodeitem() {cout << "New nodeitem" << endl;}
+        nodeitem() {
+            isvalue = false;
+            parent = NULL;
+        }
         void add(const K key) {
             items[key] = new nodeitem;
             items[key]->parent = this;
                            }
         ~nodeitem() {
-            cout << "Delete nodeitem" << endl;
             typename map<K, nodeitem*>::iterator it, end;
             it = items.begin();
             end = items.end();
@@ -52,7 +53,7 @@ private:
         nodeitem* parent = NULL;
         map<K, nodeitem*> items;
     };
-    void addkey(typename PrefixTree<K, V>::nodeitem* root, K* key, const int i, vector<K>* vect);
+    void addkey(typename PrefixTree<K, V>::nodeitem* root, K* key, const int i, QVector<K>* vect);
     int count_nodes; //Количество узлов
     int count_keys; //Количество ключей
     int max_length; //Максимальная длина ключа
@@ -82,9 +83,9 @@ void PrefixTree<K, V>::add(const K& key, const V& value) {
 }
 
 template<class K, class V>
-vector<K> PrefixTree<K, V>::getKeys(const K &key) {
+QVector<K> PrefixTree<K, V>::getKeys(const K &key) {
     //Получение вектора ключей, начинающихся с заданной последовательности
-    vector<K> vect;
+    QVector<K> vect;
     int i=0;
     typename PrefixTree<K, V>::nodeitem* t = _root;
     K* keyitem = new K;
@@ -216,6 +217,58 @@ int PrefixTree<K, V>::getMaxLength() const {
     return max_length;
 }
 
+template<class K, class V>
+bool PrefixTree<K, V>::toFile(const QString &filename)
+{
+    if (!filename.endsWith(".lab2")) return false;
+    QFile file(filename);
+    if (file.open(QFile::WriteOnly)) {
+        K empty;
+        QVector<K> keys = getKeys(empty);
+        int i = 0;
+        QDataStream out(&file);
+        out << QString("Chashkin oop lab2 miem");
+        out << keys;
+        V values[keys.size()];
+        while (i < (int)keys.size()) {
+            values[i] = (*this)[keys[i]];
+            i++;
+        }
+        out.writeRawData((char*)values, sizeof(values));
+        file.close();
+        return true;
+    }
+    else
+        return false;
+}
+
+template<class K, class V>
+bool PrefixTree<K, V>::fromFile(const QString &filename)
+{
+    if (!filename.endsWith(".lab2")) return false;
+    QFile file(filename);
+    if (file.open(QFile::ReadOnly)) {
+        QDataStream in(&file);
+        QString secret;
+        in >> secret;
+        if (secret != "Chashkin oop lab2 miem") {
+            file.close();
+            return false;
+        }
+        delall();
+        QVector<K> keys;
+        in >> keys;
+        V values[keys.size()];
+        in.readRawData((char*)values, sizeof(values));
+        for (int i = 0; i<keys.size(); i++)
+            add(keys[i], values[i]);
+        file.close();
+        return true;
+    }
+    else
+        return false;
+}
+
 template <class K, class V>
 PrefixTree<K, V>::PrefixTree() {
     //Конструктор по умолчанию
@@ -228,9 +281,8 @@ PrefixTree<K, V>::PrefixTree() {
 template <class K, class V>
 PrefixTree<K, V>::PrefixTree(PrefixTree &tree) {
     //Конструктор копирования
-    cout << "New PrefixTree" << endl;
     K empty;
-    vector<K> vect = tree.getKeys(empty);
+    QVector<K> vect = tree.getKeys(empty);
     count_keys = 0;
     count_nodes = 0;
     max_length = 0;
@@ -247,8 +299,8 @@ bool PrefixTree<K, V>::operator==(const PrefixTree &tree)
 {
     //Перегрузка оператора == равенство 2 деревьев
     K empty;
-    vector<K> vect1 = getKeys(empty);
-    vector<K> vect2 = getKeys(empty);
+    QVector<K> vect1 = getKeys(empty);
+    QVector<K> vect2 = getKeys(empty);
     int i = 0;
     while (i < (int)vect1.size()) {
         try {
@@ -275,12 +327,11 @@ bool PrefixTree<K, V>::operator==(const PrefixTree &tree)
 template <class K, class V>
 PrefixTree<K, V>::~PrefixTree() {
     //Деструктор
-    cout << "Delete Tree" << endl;
     delete _root;
 }
 
 template<class K, class V>
-void PrefixTree<K, V>::addkey(typename PrefixTree<K, V>::nodeitem* root, K* key, const int i, vector<K>* vect) {
+void PrefixTree<K, V>::addkey(typename PrefixTree<K, V>::nodeitem* root, K* key, const int i, QVector<K>* vect) {
     //Добавление ключа в вектор
     if (root->isvalue) {
         vect->push_back(*key);

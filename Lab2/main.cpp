@@ -1,17 +1,15 @@
 #include <iostream>
-#include <map>
-#include <vector>
+#include <QVector>
 #include <assert.h>
 #include "PrefixTree.h"
-//#include "PrefixTreeIterator.h"
 
 using namespace std;
 
 void testDelete() {
     //Тестирование удаления
-    PrefixTree<vector<QString>, int> tree;
-    vector<QString> my_vect1 = {"Red", "Yellow", "Green", "Blue"};
-    vector<QString> my_vect2 = {"Red", "Yellow", "Orange", "White", "Green"};
+    PrefixTree<QVector<QString>, int> tree;
+    QVector<QString> my_vect1 = {"Red", "Yellow", "Green", "Blue"};
+    QVector<QString> my_vect2 = {"Red", "Yellow", "Orange", "White", "Green"};
     char value = 'F';
     tree.add(my_vect1, value);
     tree.add(my_vect2, value);
@@ -32,8 +30,8 @@ void testDelete() {
 
 void testDeleteOne() {
     //Тестирование удаления единственного ключа
-    PrefixTree<vector<QString>, int> tree;
-    vector<QString> my_vect = {"Yellow", "Green", "Red"};
+    PrefixTree<QVector<QString>, int> tree;
+    QVector<QString> my_vect = {"Yellow", "Green", "Red"};
     char value = 'X';
     tree.add(my_vect, value);
     tree.delkey(my_vect);
@@ -49,9 +47,9 @@ void testDeleteOne() {
 
 void testDeletePartDelete() {
     //Тестирование частичного удаления
-    PrefixTree<vector<QString>, int> tree;
-    vector<QString> my_vect1 = {"Red", "Yellow", "Green", "Blue"};
-    vector<QString> my_vect2 = {"Red", "Yellow", "Green"};
+    PrefixTree<QVector<QString>, int> tree;
+    QVector<QString> my_vect1 = {"Red", "Yellow", "Green", "Blue"};
+    QVector<QString> my_vect2 = {"Red", "Yellow", "Green"};
     char value = 'E';
     tree.add(my_vect1, value);
     tree.add(my_vect2, value);
@@ -63,9 +61,9 @@ void testDeletePartDelete() {
 
 void testDeleteNoDelete() {
     //Тестирование невозможности удаления
-    PrefixTree<vector<QString>, int> tree;
-    vector<QString> my_vect1 = {"Red", "Yellow", "Green", "Blue"};
-    vector<QString> my_vect2 = {"Red", "Yellow", "Green"};
+    PrefixTree<QVector<QString>, int> tree;
+    QVector<QString> my_vect1 = {"Red", "Yellow", "Green", "Blue"};
+    QVector<QString> my_vect2 = {"Red", "Yellow", "Green"};
     char value = 'E';
     tree.add(my_vect1, value);
     tree.add(my_vect2, value);
@@ -77,8 +75,8 @@ void testDeleteNoDelete() {
 
 void testAddOne() {
     //Тестирование добавления одного ключа
-    PrefixTree<vector<QString>, char> tree;
-    vector<QString> my_vect = {"Red", "Yellow", "Green"};
+    PrefixTree<QVector<QString>, char> tree;
+    QVector<QString> my_vect = {"Red", "Yellow", "Green"};
     char value = 'L';
     assert(tree.getCountKeys() == 0); //Тест 1
     tree.add(my_vect, value);
@@ -92,11 +90,11 @@ void testAddOne() {
 
 void testAddLot() {
     //Тестирование добавления нескольких ключей
-    PrefixTree<vector<QString>, char> tree;
-    vector<QString> my_vect1 = {"Red", "Yellow", "Green", "Blue"};
-    vector<QString> my_vect2 = {"Red", "Yellow", "Green"};
-    vector<QString> my_vect3 = {"Red", "Yellow", "Blue", "Blue"};
-    vector<QString> my_vect4 = {"White", "Green", "Blue", "Blue"};
+    PrefixTree<QVector<QString>, char> tree;
+    QVector<QString> my_vect1 = {"Red", "Yellow", "Green", "Blue"};
+    QVector<QString> my_vect2 = {"Red", "Yellow", "Green"};
+    QVector<QString> my_vect3 = {"Red", "Yellow", "Blue", "Blue"};
+    QVector<QString> my_vect4 = {"White", "Green", "Blue", "Blue"};
     char value1 = 'A';
     char value2 = 'B';
     char value4 = 'C';
@@ -121,10 +119,10 @@ void testAddLot() {
 
 void testDeleteAll() {
     //Тестирование полного удаления
-    PrefixTree<vector<QString>, char> tree1;
-    PrefixTree<vector<QString>, char> tree2;
-    vector<QString> my_vect1 = {"Red", "Yellow", "Green", "Blue"};
-    vector<QString> my_vect2 = {"Red", "Yellow", "Green"};
+    PrefixTree<QVector<QString>, char> tree1;
+    PrefixTree<QVector<QString>, char> tree2;
+    QVector<QString> my_vect1 = {"Red", "Yellow", "Green", "Blue"};
+    QVector<QString> my_vect2 = {"Red", "Yellow", "Green"};
     tree1.add(my_vect1, 'L');
     tree1.add(my_vect2, 'M');
     tree1.delall();
@@ -133,26 +131,32 @@ void testDeleteAll() {
 
 void testCopyConstructor() {
     //Тестирование конструктора копирования
-    PrefixTree<vector<QString>, char> tree;
-    vector<QString> my_vect1 = {"Red", "Yellow", "Green", "Blue"};
-    vector<QString> my_vect2 = {"Red", "Yellow", "Green"};
+    PrefixTree<QVector<QString>, char> tree;
+    QVector<QString> my_vect1 = {"Red", "Yellow", "Green", "Blue"};
+    QVector<QString> my_vect2 = {"Red", "Yellow", "Green"};
     tree.add(my_vect1, 'L');
     tree.add(my_vect2, 'M');
-    PrefixTree<vector<QString>, char> copytree(tree);
+    PrefixTree<QVector<QString>, char> copytree(tree);
     assert(copytree == tree); //Тест 8а
     copytree.add(my_vect1, 'K');
     assert(!(copytree == tree)); //Тест 8б
 }
-/*
-void testPrefixTreeTo...() {
+
+void testPrefixTreeToFile() {
     //Тестирование записи в файл
-    PrefixTree tree;
-    tree.PrefixTreeTo...
-    PrefixTree newtree;
-    newtree.PrefixTreeFromJSON...
-    assert()
+    PrefixTree<QVector<QString>, char> tree;
+    QVector<QString> my_vect1 = {"Red", "Yellow", "Green", "Blue"};
+    QVector<QString> my_vect2 = {"Red", "Yellow", "Green"};
+    tree.add(my_vect1, 'L');
+    tree.add(my_vect2, 'M');
+    if (!tree.toFile("1.lab2"))
+        assert(false);
+    PrefixTree<QVector<QString>, char> newtree;
+    if (!newtree.fromFile("1.lab2"))
+        assert(false);
+    assert(tree == newtree);
 }
-*/
+
 void test() {
     //Тестирование
     testAddOne(); //Тесты 1,2,3,4
@@ -163,7 +167,7 @@ void test() {
     testDeleteNoDelete();
     testDeleteAll(); //Тест 7
     testCopyConstructor(); //Тест 8
-    //testPrefixTreeTo...(); //Тест 9
+    testPrefixTreeToFile(); //Тест 9
     cout << "All is OK" << endl;
 }
 
