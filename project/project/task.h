@@ -2,6 +2,7 @@
 #define TASK_H
 
 #include <QString>
+#include <QJsonObject>
 
 class TaskDB;
 class MegaTask;
@@ -23,10 +24,10 @@ public:
     virtual QString getType() const;
     virtual void operator>>(int completion);
     virtual void operator<<(int completion);
-    virtual ~Task() {};
     int getParentId() const;
+    virtual ~Task() {};
 protected:
-    Task(const QString& name="", const QString& description="");
+    Task(const int id, const QString& name="", const QString& description="");
 private:
     int _id;
     QString _name;
@@ -35,5 +36,7 @@ private:
     int _parentid;
     bool _isdeleted;
 };
+
+std::ostream& operator<<(std::ostream& out, const Task &task);
 
 #endif // TASK_H

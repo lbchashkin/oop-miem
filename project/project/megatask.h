@@ -16,18 +16,19 @@ public:
     virtual void setCompletion(const int percentage);
     void sort(int by=0);
     virtual QString getType() const;
+    int getSize() const;
     void operator+(Task& task);
     void operator-(Task& task);
     void operator+(DeadlineTask& task);
     void operator-(DeadlineTask& task);
     void operator+(MegaTask& task);
     void operator-(MegaTask& task);
-    int operator[](int index);
+    int operator[](int index) const;
     virtual void operator>>(int completion);
     virtual void operator<<(int completion);
     virtual ~MegaTask() {};
 private:
-    MegaTask(TaskDB *base, const QString& name="", const QString& description="");
+    MegaTask(const int id, TaskDB *base, const QString& name="", const QString& description="");
     bool compare0(int id1, int id2) const;
     bool compare1(int id1, int id2) const;
     bool compare2(int id1, int id2) const;
@@ -36,10 +37,12 @@ private:
     TaskDB* _base;
 };
 
+std::ostream& operator<<(std::ostream& out, const MegaTask &task);
+
 template <class T>
 bool sorting(T* array, int size, bool (*compare)(T, T));
 
 template <class T>
-bool vector_sorting(QVector<T> array, bool (*compare)(T, T));
+bool vector_sorting(QVector<T>& array, bool (*compare)(T, T));
 
 #endif // MEGATASK_H

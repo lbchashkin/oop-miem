@@ -14,9 +14,11 @@ public:
     virtual QString getType() const;
     virtual ~DeadlineTask() {};
 private:
-    DeadlineTask(const QString& name="", const QString& description="", const QDate& date=QDate::currentDate());
+    DeadlineTask(const int id, const QString& name="", const QString& description="", const QDate& date=QDate::currentDate());
     QDate _deadline;
 
 };
+
+std::ostream& operator<<(std::ostream& out, const DeadlineTask &task);
 
 #endif // DEADLINETASK_H

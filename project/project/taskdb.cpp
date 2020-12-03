@@ -1,36 +1,39 @@
 #include "taskdb.h"
+#include <iostream>
 
 TaskDB::TaskDB()
 {
+    //Конструктор по умолчанию
     id = 0;
 }
 
 Task TaskDB::createNewTask(const QString &name, const QString &description)
 {
-    Task* task = new Task(name, description);
-    task->_id = ++id;
+    //Создание задачи
+    Task* task = new Task(++id, name, description);
     base.insert(id, task);
     return *task;
 }
 
 DeadlineTask TaskDB::createNewDeadlineTask(const QString &name, const QString &description, const QDate &date)
 {
-    DeadlineTask* task = new DeadlineTask(name, description, date);
-    task->_id = ++id;
+    //Создание задачи с дедлайном
+    DeadlineTask* task = new DeadlineTask(++id, name, description, date);
     base.insert(id, task);
     return *task;
 }
 
 MegaTask TaskDB::createNewMegaTask(const QString &name, const QString &description)
 {
-    MegaTask* task = new MegaTask(this, name, description);
-    task->_id = ++id;
+    //Создание мегазадачи
+    MegaTask* task = new MegaTask(++id, this, name, description);
     base.insert(id, task);
     return *task;
 }
 
 void TaskDB::taskUpdate(const Task &task)
 {
+    //Обновление задачи
     if (base.contains(task.getId())) {
         delete base[task.getId()];
         base[task.getId()] = new Task(task);
@@ -42,6 +45,7 @@ void TaskDB::taskUpdate(const Task &task)
 
 void TaskDB::taskUpdate(const DeadlineTask &task)
 {
+    //Обновление задачи с дедлайном
     if (base.contains(task.getId())) {
         delete base[task.getId()];
         base[task.getId()] = new DeadlineTask(task);
@@ -52,6 +56,7 @@ void TaskDB::taskUpdate(const DeadlineTask &task)
 
 void TaskDB::taskUpdate(const MegaTask &task)
 {
+    //Обновление мегазадачи
     if (base.contains(task.getId())) {
         delete base[task.getId()];
         base[task.getId()] = new MegaTask(task);
@@ -62,6 +67,7 @@ void TaskDB::taskUpdate(const MegaTask &task)
 
 void TaskDB::removeById(const int id)
 {
+    //Удаление по id
     if (base.contains(id)) {
         Task* tmp = base[id];
         if (tmp->getParentId()) {
@@ -75,8 +81,15 @@ void TaskDB::removeById(const int id)
         throw std::out_of_range("ID error");
 }
 
+bool TaskDB::isId(const int id) const
+{
+    //Является ли значение id
+    return base.contains(id);
+}
+
 QString TaskDB::getTypeById(int id) const
 {
+    //Получение типа по id
     if (base.contains(id)) return base[id]->getType();
     else
         throw std::out_of_range("ID error");
@@ -84,6 +97,7 @@ QString TaskDB::getTypeById(int id) const
 
 Task TaskDB::getTaskById(int id) const
 {
+    //Получение задачи по id
     if (base.contains(id)) {
         if (base[id]->getType() == "Task")
             return Task(*base[id]);
@@ -96,6 +110,7 @@ Task TaskDB::getTaskById(int id) const
 
 DeadlineTask TaskDB::getDeadlineTaskById(int id) const
 {
+    //Получение задачи с дедлайном по id
     if (base.contains(id)) {
         if (base[id]->getType() == "DeadlineTask")
             return DeadlineTask(*(DeadlineTask*)base[id]);
@@ -108,6 +123,7 @@ DeadlineTask TaskDB::getDeadlineTaskById(int id) const
 
 MegaTask TaskDB::getMegaTaskById(int id) const
 {
+    //Получение мегазадачи по id
     if (base.contains(id)) {
         if (base[id]->getType() == "MegaTask")
             return MegaTask(*(MegaTask*)base[id]);
@@ -116,4 +132,19 @@ MegaTask TaskDB::getMegaTaskById(int id) const
     }
     else
         throw std::out_of_range("ID Error");
+}
+
+void TaskDB::printTasks() const
+{
+    //Вывод задач на экран
+    std::cout << "Base" << std::endl;
+    for (auto value: base) {
+        QString type = value->getType();
+        if (type == "Task")
+            std::cout << *value;
+        else if (type == "DeadlineTask")
+            std::cout << *(DeadlineTask*)value;
+        else
+            std::cout << *(MegaTask*)value;
+    }
 }
