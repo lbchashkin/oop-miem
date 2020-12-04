@@ -12,6 +12,7 @@ public:
     void setDeadline(const QDate& date);
     unsigned int getDaysToDeadline() const;
     virtual QString getType() const;
+    virtual QJsonObject toJsonObject() const;
     virtual ~DeadlineTask() {};
 private:
     DeadlineTask(const int id, const QString& name="", const QString& description="", const QDate& date=QDate::currentDate());

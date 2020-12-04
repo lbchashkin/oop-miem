@@ -3,8 +3,7 @@
 
 using namespace std;
 
-void testTaskDefaultConstructor(Task &task)
-{
+void testTaskDefaultConstructor(Task &task) {
     //Тестирование конструктора по умолчанию для Task
     assert(task.getParentId() == 0);
     assert(task.getName() == QString("Task #%1").arg(task.getId()));
@@ -13,8 +12,7 @@ void testTaskDefaultConstructor(Task &task)
     assert(!task.isDeleted());
 }
 
-void testTaskInitializationConstructor(Task &task, QString name, QString description)
-{
+void testTaskInitializationConstructor(Task &task, QString name, QString description) {
     //Тестирование конструктора инициализации для Task
     assert(task.getParentId() == 0);
     assert(task.getName() == name);
@@ -23,8 +21,7 @@ void testTaskInitializationConstructor(Task &task, QString name, QString descrip
     assert(!task.isDeleted());
 }
 
-void testDeadlineTaskDefaultConstructor(DeadlineTask &task)
-{
+void testDeadlineTaskDefaultConstructor(DeadlineTask &task) {
     //Тестирование конструктора по умолчанию для DeadlineTask
     assert(task.getParentId() == 0);
     assert(task.getName() == QString("Task #%1").arg(task.getId()));
@@ -34,8 +31,7 @@ void testDeadlineTaskDefaultConstructor(DeadlineTask &task)
     assert(!task.isDeleted());
 }
 
-void testDeadlineTaskInitializationConstructor(DeadlineTask &task, QString name, QString description, QDate date)
-{
+void testDeadlineTaskInitializationConstructor(DeadlineTask &task, QString name, QString description, QDate date) {
     //Тестирование конструктора инициализации для DeadlineTask
     assert(task.getParentId() == 0);
     assert(task.getName() == name);
@@ -45,8 +41,7 @@ void testDeadlineTaskInitializationConstructor(DeadlineTask &task, QString name,
     assert(!task.isDeleted());
 }
 
-void testTaskSetters(Task& task)
-{
+void testTaskSetters(Task& task) {
     //Тестирование сеттеров для Task
     task.setName("My task");
     assert(task.getName() == "My task");
@@ -62,8 +57,7 @@ void testTaskSetters(Task& task)
     assert(!task.isDeleted());
 }
 
-void testDeadlineTaskSetters(DeadlineTask& task)
-{
+void testDeadlineTaskSetters(DeadlineTask& task) {
     //Тестирование сеттеров для DeadlineTask
     task.setName("My task");
     assert(task.getName() == "My task");
@@ -81,8 +75,7 @@ void testDeadlineTaskSetters(DeadlineTask& task)
     assert(task.getDeadline() == QDate(2020, 12, 31));
 }
 
-void testTaskCopyConstructor(Task& task)
-{
+void testTaskCopyConstructor(Task& task) {
     //Тестирование копирующего конструктора для Task
     Task task2(task);
     assert(task2.getId() == task.getId());
@@ -93,8 +86,7 @@ void testTaskCopyConstructor(Task& task)
     assert(task2.isDeleted() == task.isDeleted());
 }
 
-void testDeadlineTaskCopyConstructor(DeadlineTask& task)
-{
+void testDeadlineTaskCopyConstructor(DeadlineTask& task) {
     //Тестирование копирующего конструктора для DeadlineTask
     DeadlineTask task2(task);
     assert(task2.getId() == task.getId());
@@ -106,8 +98,7 @@ void testDeadlineTaskCopyConstructor(DeadlineTask& task)
     assert(task2.isDeleted() == task.isDeleted());
 }
 
-void testTaskUpdate(TaskDB& base, Task task)
-{
+void testTaskUpdate(TaskDB& base, Task task) {
     //Тестирование обновления задачи в базе
     task.setName("New name");
     task.setDescription("New Description");
@@ -123,8 +114,7 @@ void testTaskUpdate(TaskDB& base, Task task)
     assert(task2.isDeleted() == task.isDeleted());
 }
 
-Task* getTask(TaskDB& base, int id)
-{
+Task* getTask(TaskDB& base, int id) {
     //Получение задачи из базы
     if (base.isId(id)) {
         QString type = base.getTypeById(id);
@@ -139,8 +129,7 @@ Task* getTask(TaskDB& base, int id)
         return NULL;
 }
 
-void testMegaTaskSetters(MegaTask& task, int id[], TaskDB& base)
-{
+void testMegaTaskSetters(MegaTask& task, int id[], TaskDB& base) {
     //Тестирование сеттеров для MegaTask
     for (int i=0; i<task.getSize(); i++)
         assert(task[i] == id[i]);
@@ -192,8 +181,7 @@ void testMegaTaskSetters(MegaTask& task, int id[], TaskDB& base)
     assert(!task.isDeleted());
 }
 
-void testTask()
-{
+void testTask() {
     //Тестирование Task и DeadlineTask
     TaskDB base;
     Task task1 = base.createNewTask();
@@ -216,8 +204,7 @@ void testTask()
     cout << "All Task/DeadlineTask tests are passed" << endl;
 }
 
-bool compareMegaTasks(MegaTask& task1, MegaTask& task2)
-{
+bool compareMegaTasks(MegaTask& task1, MegaTask& task2) {
     //Сравнение мегазадач
     if (task1.getId() != task2.getId())
         return false;
@@ -271,8 +258,7 @@ void testSorting() {
     assert(megatask[4] == task1.getId());
 }
 
-void testMegaTask()
-{
+void testMegaTask() {
     //Тестирование класса MegaTask
     TaskDB base;
     MegaTask tasks = base.createNewMegaTask();
@@ -306,18 +292,19 @@ void testMegaTask()
     cout << "All MegaTask tests are passed" << endl;
 }
 
-int main()
-{
+int main() {
     setlocale(LC_ALL, "RUS");
     testTask();
     testMegaTask();
     TaskDB base;
     Task task1 = base.createNewTask("My task");
-    DeadlineTask task2 = base.createNewDeadlineTask("Deadline task", "", QDate(2020, 12, 20));
+    DeadlineTask task2 = base.createNewDeadlineTask("Deadline task", "", QDate(2020, 12, 14));
+    cout << "Days to Deadline: " << task2.getDaysToDeadline() << endl;
     MegaTask megatask = base.createNewMegaTask();
     megatask+task1;
     megatask+task2;
     base.taskUpdate(megatask);
     base.printTasks();
+    base.toJson("test.json");
     return 0;
 }

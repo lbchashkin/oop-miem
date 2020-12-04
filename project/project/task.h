@@ -25,6 +25,7 @@ public:
     virtual void operator>>(int completion);
     virtual void operator<<(int completion);
     int getParentId() const;
+    virtual QJsonObject toJsonObject() const;
     virtual ~Task() {};
 protected:
     Task(const int id, const QString& name="", const QString& description="");

@@ -26,6 +26,7 @@ public:
     int operator[](int index) const;
     virtual void operator>>(int completion);
     virtual void operator<<(int completion);
+    virtual QJsonObject toJsonObject() const;
     virtual ~MegaTask() {};
 private:
     MegaTask(const int id, TaskDB *base, const QString& name="", const QString& description="");

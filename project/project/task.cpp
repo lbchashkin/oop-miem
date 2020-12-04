@@ -1,7 +1,6 @@
 #include "task.h"
 
-Task::Task(const int id, const QString &name, const QString &description)
-{
+Task::Task(const int id, const QString &name, const QString &description) {
     //Конструктор инициализации
     _id = id;
     setName(name);
@@ -11,14 +10,12 @@ Task::Task(const int id, const QString &name, const QString &description)
     _parentid = 0;
 }
 
-int Task::getParentId() const
-{
+int Task::getParentId() const {
     //Получение id родителя
     return _parentid;
 }
 
-Task::Task(const Task &task)
-{
+Task::Task(const Task &task) {
     //Конструктор копирования
     _id = task.getId();
     setName(task.getName());
@@ -28,34 +25,29 @@ Task::Task(const Task &task)
     _parentid = task.getParentId();
 }
 
-bool Task::isDeleted() const
-{
+bool Task::isDeleted() const {
     //Получение флага удаления задачи
     return _isdeleted;
 }
 
-QString Task::getType() const
-{
+QString Task::getType() const {
     //Получение типа
     return "Task";
 }
 
-void Task::operator>>(int completion)
-{
+void Task::operator>>(int completion) {
     //>> - выставить процент выполнения и удалить
     setCompletion(completion);
     _isdeleted = true;
 }
 
-void Task::operator<<(int completion)
-{
+void Task::operator<<(int completion) {
     //<< - выставить процент выполнения и снять удаление
     setCompletion(completion);
     _isdeleted = false;
 }
 
-void Task::setName(const QString &name)
-{
+void Task::setName(const QString &name) {
     //Установить имя
     if (name.isEmpty())
         _name = QString("Task #%1").arg(_id);
@@ -63,14 +55,12 @@ void Task::setName(const QString &name)
         _name = name;
 }
 
-void Task::setDescription(const QString &description)
-{
+void Task::setDescription(const QString &description) {
     //Установить описание
     _description = description;
 }
 
-void Task::setCompletion(const int percentage)
-{
+void Task::setCompletion(const int percentage) {
     //Установить процент выполнения
     if (percentage <= 0)
         _completion = 0;
@@ -80,32 +70,40 @@ void Task::setCompletion(const int percentage)
         _completion = percentage;
 }
 
-QString Task::getName() const
-{
+QString Task::getName() const {
     //Получить имя
     return _name;
 }
 
-QString Task::getDescription() const
-{
+QString Task::getDescription() const {
     //Получить описание
     return _description;
 }
 
-int Task::getCompletion() const
-{
+int Task::getCompletion() const {
     //Получить процент выполнения
     return _completion;
 }
 
-int Task::getId() const
-{
+int Task::getId() const {
     //Получить id
     return _id;
 }
 
-std::ostream &operator<<(std::ostream &out, const Task &task)
-{
+QJsonObject Task::toJsonObject() const {
+    //Сохранение информации в QJsonObject
+    QJsonObject object;
+    object.insert("Type", getType());
+    object.insert("Id", getId());
+    object.insert("ParentId", getParentId());
+    object.insert("Name", getName());
+    object.insert("Description", getDescription());
+    object.insert("Completion", getCompletion());
+    object.insert("isDeleted", isDeleted());
+    return object;
+}
+
+std::ostream &operator<<(std::ostream &out, const Task &task) {
     //Перегрузка оператора вывода
     int id = task.getParentId();
     out << "Task" << std::endl;

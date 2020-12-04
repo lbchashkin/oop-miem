@@ -1,8 +1,10 @@
 #include "megatask.h"
 #include <iostream>
+#include <QJsonObject>
+#include <QJsonArray>
+
 template <class T>
-bool sorting(T* array, int size, std::function<bool(int, int)> compare)
-{
+bool sorting(T* array, int size, std::function<bool(T, T)> compare) {
     //Сортировка массива
     bool is_sorted = true;
     for (int i = 0; i<size-1; i++)
@@ -17,8 +19,7 @@ bool sorting(T* array, int size, std::function<bool(int, int)> compare)
 }
 
 template <class T>
-bool vector_sorting(QVector<T>& array, std::function<bool(int, int)> compare)
-{
+bool vector_sorting(QVector<T>& array, std::function<bool(T, T)> compare) {
     //Сортировка QVector
     bool is_sorted = true;
     int size = array.size();
@@ -31,8 +32,7 @@ bool vector_sorting(QVector<T>& array, std::function<bool(int, int)> compare)
     return !is_sorted;
 }
 
-std::ostream &operator<<(std::ostream &out, const MegaTask& task)
-{
+std::ostream &operator<<(std::ostream &out, const MegaTask& task) {
     //Перегрузка оператора вывода
     int id = task.getParentId();
     out << "MegaTask" << std::endl;
@@ -65,8 +65,7 @@ Task* MegaTask::getTaskFromBase(int id) const {
     return task;
 }
 
-bool MegaTask::compare0(int id1, int id2) const
-{
+bool MegaTask::compare0(int id1, int id2) const {
     //Сравнение 2 задачи по имени
     bool result;
     Task* task1 = getTaskFromBase(id1);
@@ -86,8 +85,7 @@ bool MegaTask::compare0(int id1, int id2) const
     return result;
 }
 
-bool MegaTask::compare1(int id1, int id2) const
-{
+bool MegaTask::compare1(int id1, int id2) const {
     //Сравнение 2 задач по проценту выполнения
     bool result;
     Task* task1 = getTaskFromBase(id1);
@@ -107,8 +105,7 @@ bool MegaTask::compare1(int id1, int id2) const
     return result;
 }
 
-bool MegaTask::compare2(int id1, int id2) const
-{
+bool MegaTask::compare2(int id1, int id2) const {
     //Сравнение 2 задач по дате дедлайна
     bool result;
     Task* task1 = getTaskFromBase(id1);
@@ -136,23 +133,20 @@ bool MegaTask::compare2(int id1, int id2) const
 }
 
 MegaTask::MegaTask(const int id, TaskDB *base, const QString &name, const QString &description):
-    Task(id, name, description)
-{
+    Task(id, name, description) {
     //Конструктор инициализации
     _base = base;
 }
 
 MegaTask::MegaTask(const MegaTask &megatask):
-    Task(megatask)
-{
+    Task(megatask) {
     //Конструктор копирования
     _base = megatask._base;
     for (int i = 0; i<megatask.tasks.size(); i++)
         tasks.push_back(megatask.tasks[i]);
 }
 
-int MegaTask::getCompletion() const
-{
+int MegaTask::getCompletion() const {
     //Получение значения процента выполнения
     float sum=0;
     for (int i = 0; i<tasks.size(); i++) {
@@ -170,8 +164,7 @@ int MegaTask::getCompletion() const
         return sum;
 }
 
-void MegaTask::setCompletion(const int percentage)
-{
+void MegaTask::setCompletion(const int percentage) {
     //Установка значения процента выполнения
     for (int i=0; i<tasks.size(); i++) {
         Task* task = getTaskFromBase(tasks[i]);
@@ -186,8 +179,7 @@ void MegaTask::setCompletion(const int percentage)
     }
 }
 
-void MegaTask::sort(int by)
-{
+void MegaTask::sort(int by) {
     //Сортировка (by = 0/1/2)
     if (by==0)
         vector_sorting<int>(tasks, {[this](int id1, int id2){return this->compare0(id1, id2);}});
@@ -199,20 +191,17 @@ void MegaTask::sort(int by)
         throw std::invalid_argument("Argument 'by' should be 0, 1 or 2");
 }
 
-QString MegaTask::getType() const
-{
+QString MegaTask::getType() const {
     //Получение типа
     return "MegaTask";
 }
 
-int MegaTask::getSize() const
-{
+int MegaTask::getSize() const {
     //Получение количества подзадач
     return tasks.size();
 }
 
-void MegaTask::operator+(Task &task)
-{
+void MegaTask::operator+(Task &task) {
     //Добавление задачи
     if (!tasks.contains(task.getId()) and !task.getParentId())
     {
@@ -231,8 +220,7 @@ void MegaTask::operator+(Task &task)
         throw std::invalid_argument("ID error");
 }
 
-void MegaTask::operator-(Task &task)
-{
+void MegaTask::operator-(Task &task) {
     //Удаление задачи
     if (tasks.contains(task.getId())) {
         task._parentid = 0;
@@ -241,8 +229,7 @@ void MegaTask::operator-(Task &task)
     }
 }
 
-void MegaTask::operator+(DeadlineTask &task)
-{
+void MegaTask::operator+(DeadlineTask &task) {
     //Добавление задачи с дедлайном
     if (!tasks.contains(task.getId()) and !task.getParentId())
     {
@@ -261,8 +248,7 @@ void MegaTask::operator+(DeadlineTask &task)
         throw std::invalid_argument("ID error");
 }
 
-void MegaTask::operator-(DeadlineTask &task)
-{
+void MegaTask::operator-(DeadlineTask &task) {
     //Удаление задачи с дедлайном
     if (tasks.contains(task.getId())) {
         task._parentid = 0;
@@ -271,8 +257,7 @@ void MegaTask::operator-(DeadlineTask &task)
     }
 }
 
-void MegaTask::operator+(MegaTask &task)
-{
+void MegaTask::operator+(MegaTask &task) {
     //Добавление мегазадачи
     if (!tasks.contains(task.getId()) and !task.getParentId())
     {
@@ -301,8 +286,7 @@ void MegaTask::operator+(MegaTask &task)
         throw std::invalid_argument("ID error");
 }
 
-void MegaTask::operator-(MegaTask &task)
-{
+void MegaTask::operator-(MegaTask &task) {
     //Удаление мегазадачи
     if (tasks.contains(task.getId())) {
         task._parentid = 0;
@@ -311,14 +295,12 @@ void MegaTask::operator-(MegaTask &task)
     }
 }
 
-int MegaTask::operator[](int index) const
-{
+int MegaTask::operator[](int index) const {
     //Перегрузка []
     return tasks[index];
 }
 
-void MegaTask::operator>>(int completion)
-{
+void MegaTask::operator>>(int completion) {
     //Установить процент выполнения всем задачам и удалить все задачи
     for (int i=0; i<tasks.size(); i++) {
         Task* task = getTaskFromBase(tasks[i]);
@@ -334,8 +316,7 @@ void MegaTask::operator>>(int completion)
     _isdeleted = true;
 }
 
-void MegaTask::operator<<(int completion)
-{
+void MegaTask::operator<<(int completion) {
     //Установить процент выполнения и снять удаление всех задач
     for (int i=0; i<tasks.size(); i++) {
         Task* task = getTaskFromBase(tasks[i]);
@@ -349,4 +330,20 @@ void MegaTask::operator<<(int completion)
         delete task;
     }
     _isdeleted = false;
+}
+
+QJsonObject MegaTask::toJsonObject() const {
+    //Сохранение информации в QJsonObject
+    QJsonObject object;
+    object.insert("Type", getType());
+    object.insert("Id", getId());
+    object.insert("ParentId", getParentId());
+    object.insert("Name", getName());
+    object.insert("Description", getDescription());
+    object.insert("isDeleted", isDeleted());
+    QJsonArray array;
+    for (int i=0; i<getSize(); i++)
+        array.append(tasks[i]);
+    object.insert("Tasks", array);
+    return object;
 }

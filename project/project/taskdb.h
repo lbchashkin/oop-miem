@@ -17,12 +17,16 @@ public:
     void taskUpdate(const MegaTask& task);
     void removeById(const int id);
     bool isId(const int id) const;
+    bool toJson(QString filename) const;
+    bool fromJson(QString filename);
     QString getTypeById(int id) const;
     Task getTaskById(int id) const;
     DeadlineTask getDeadlineTaskById(int id) const;
     MegaTask getMegaTaskById(int id) const;
     void printTasks() const;
+    ~TaskDB();
 private:
+    Task* getTaskFromQJsonObject(QJsonObject object);
     int id;
     QMap<int, Task*> base;
 };
